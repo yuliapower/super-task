@@ -80,3 +80,24 @@ tasks.compileJava {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+            groupId 'com.yuliapower'
+            artifactId 'main-service'
+            version project.version
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Main service autoconfigure')
+                root.appendNode('name', 'main-service')
+                root.appendNode('url', 'https://github.com/yuliapower/super-task/blob/master/main-service')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
