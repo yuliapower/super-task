@@ -1,0 +1,498 @@
+openapi: 3.0.0
+info:
+  title: User Api
+  version: 1.0.0
+servers:
+- description: local
+  url: http://localhost:8080
+tags:
+- description: User Api
+  name: User
+- description: Account Api
+  name: Account
+paths:
+  /api/v1/users:
+    get:
+      operationId: findAll
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserResponseDTO'
+                type: array
+          description: OK
+        "400":
+          description: Bad request
+      summary: find all users
+      tags:
+      - User
+      x-accepts: application/json
+    post:
+      operationId: addUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationUserDTO'
+        description: Registration User DTO
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+          description: OK
+        "400":
+          description: Bad request
+      summary: create new user
+      tags:
+      - User
+      x-contentType: application/json
+      x-accepts: application/json
+  /api/v1/users/{id}:
+    delete:
+      operationId: deleteUserById
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+      summary: delete user by id
+      tags:
+      - User
+      x-accepts: application/json
+    get:
+      operationId: findUserById
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+          description: OK
+        "400":
+          description: Bad request
+      summary: find user by id
+      tags:
+      - User
+      x-accepts: application/json
+    patch:
+      operationId: updateUserById
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTOForUpdate'
+        description: User request DTO for update
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+          description: OK
+        "400":
+          description: Bad request
+      summary: update user by id
+      tags:
+      - User
+      x-contentType: application/json
+      x-accepts: application/json
+  /api/v1/users/criteria:
+    get:
+      operationId: finaAllUsersByCriteria
+      parameters:
+      - explode: true
+        in: query
+        name: User
+        required: false
+        schema:
+          $ref: '#/components/schemas/UserCriteriaFilter'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageUserResponse'
+          description: OK
+        "400":
+          description: Bad request
+      summary: find all users by criteria
+      tags:
+      - User
+      x-accepts: application/json
+  /api/v1/accounts:
+    post:
+      operationId: addAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountDtoRequest'
+        description: Account Request DTO
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDtoResponse'
+          description: OK
+        "400":
+          description: Bad request
+      summary: create new account
+      tags:
+      - Account
+      x-contentType: application/json
+      x-accepts: application/json
+  /api/v1/accounts/criteria:
+    get:
+      operationId: finaAllAccountsByCriteria
+      parameters:
+      - explode: true
+        in: query
+        name: Account
+        required: false
+        schema:
+          $ref: '#/components/schemas/AccountCriteriaFilter'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageAccountResponse'
+          description: OK
+        "400":
+          description: Bad request
+      summary: find all accounts by criteria
+      tags:
+      - Account
+      x-accepts: application/json
+components:
+  schemas:
+    UserCriteriaFilter:
+      allOf:
+      - $ref: '#/components/schemas/BaseFilter'
+      - type: object
+      properties:
+        userName:
+          type: string
+        dateOfBirthStart:
+          format: date-time
+          type: string
+        dateOfBirthEnd:
+          format: date-time
+          type: string
+        email:
+          type: string
+        growBalance:
+          format: double
+          type: number
+        lowBalance:
+          format: double
+          type: number
+        phone:
+          type: string
+    AccountCriteriaFilter:
+      allOf:
+      - $ref: '#/components/schemas/BaseFilter'
+      - type: object
+      properties:
+        userName:
+          type: string
+        dateOfBirthStart:
+          format: date-time
+          type: string
+        dateOfBirthEnd:
+          format: date-time
+          type: string
+        email:
+          type: string
+        growBalance:
+          format: double
+          type: number
+        lowBalance:
+          format: double
+          type: number
+        phone:
+          type: string
+    RegistrationUserDTO:
+      example:
+        password: password
+        phone:
+        - phone: phone
+        - phone: phone
+        name: name
+        birthDate: 2000-01-23T04:56:07.000+00:00
+        email:
+        - email: email
+        - email: email
+      properties:
+        name:
+          description: User name
+          type: string
+        birthDate:
+          description: User birthday date
+          format: date-time
+          type: string
+        password:
+          description: User password
+          type: string
+        phone:
+          description: Phone number
+          items:
+            $ref: '#/components/schemas/ShortPhoneDto'
+          type: array
+        email:
+          description: User email
+          items:
+            $ref: '#/components/schemas/ShortEmailDto'
+          type: array
+      type: object
+    UserRequestDTOForUpdate:
+      example:
+        password: password
+        phone:
+        - phone: phone
+        - phone: phone
+        name: name
+        email:
+        - email: email
+        - email: email
+      properties:
+        name:
+          description: User name
+          type: string
+        password:
+          description: User password
+          type: string
+        phone:
+          description: Phone number
+          items:
+            $ref: '#/components/schemas/ShortPhoneDto'
+          type: array
+        email:
+          description: User email
+          items:
+            $ref: '#/components/schemas/ShortEmailDto'
+          type: array
+      type: object
+    AccountDtoRequest:
+      example:
+        user_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        user_id:
+          description: User id
+          format: uuid
+          type: string
+      type: object
+    ShortPhoneDto:
+      example:
+        phone: phone
+      properties:
+        phone:
+          description: Phone number
+          type: string
+      type: object
+    ShortEmailDto:
+      example:
+        email: email
+      properties:
+        email:
+          description: Email
+          type: string
+      type: object
+    AccountDtoResponse:
+      example:
+        balance: 0.8008281904610115
+        user_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: Account id
+          format: uuid
+          type: string
+        user_id:
+          description: User id
+          format: uuid
+          type: string
+        balance:
+          description: User balance
+          format: double
+          type: number
+      type: object
+    UserResponseDTO:
+      example:
+        balance: 0.8008281904610115
+        phone: phone
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        birthDate: 2000-01-23T04:56:07.000+00:00
+        email: email
+      properties:
+        id:
+          description: User id
+          format: uuid
+          type: string
+        name:
+          description: User name
+          type: string
+        birthDate:
+          description: User birthday date
+          format: date-time
+          type: string
+        phone:
+          description: Phone number
+          type: string
+        email:
+          description: User email
+          type: string
+        balance:
+          format: double
+          type: number
+      type: object
+    PageUserResponse:
+      allOf:
+      - $ref: '#/components/schemas/BasePage'
+      - type: object
+      example:
+        content:
+        - balance: 0.8008281904610115
+          phone: phone
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          birthDate: 2000-01-23T04:56:07.000+00:00
+          email: email
+        - balance: 0.8008281904610115
+          phone: phone
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          birthDate: 2000-01-23T04:56:07.000+00:00
+          email: email
+      properties:
+        content:
+          items:
+            $ref: '#/components/schemas/UserResponseDTO'
+          type: array
+    PageAccountResponse:
+      allOf:
+      - $ref: '#/components/schemas/BasePage'
+      - type: object
+      example:
+        content:
+        - balance: 0.8008281904610115
+          user_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - balance: 0.8008281904610115
+          user_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        content:
+          items:
+            $ref: '#/components/schemas/AccountDtoResponse'
+          type: array
+    BaseFilter:
+      properties:
+        id:
+          format: uuid
+          type: string
+        pageSize:
+          default: 10
+          type: integer
+        pageNumber:
+          default: 0
+          type: integer
+        sort:
+          items:
+            type: string
+          type: array
+      type: object
+    BasePage:
+      properties:
+        totalElements:
+          format: int64
+          type: integer
+        totalPages:
+          format: int32
+          type: integer
+        size:
+          format: int32
+          type: integer
+        number:
+          format: int32
+          type: integer
+        sort:
+          $ref: '#/components/schemas/Sort'
+        first:
+          type: boolean
+        pageable:
+          $ref: '#/components/schemas/Pageable'
+        numberOfElements:
+          format: int32
+          type: integer
+        last:
+          type: boolean
+        empty:
+          type: boolean
+      type: object
+    Sort:
+      properties:
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
+        empty:
+          type: boolean
+      type: object
+    Pageable:
+      properties:
+        offset:
+          format: int64
+          type: integer
+        sort:
+          $ref: '#/components/schemas/Sort'
+        pageNumber:
+          format: int32
+          type: integer
+        pageSize:
+          format: int32
+          type: integer
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+      type: object
+
